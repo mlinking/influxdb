@@ -62,14 +62,16 @@ export const getBuckets = () => async (
     }
     const org = getOrg(state)
 
-    const resp = await api.getBuckets({query: {orgID: org.id}})
+    const resp = await api.getBuckets({query: {}})
 
     if (resp.status !== 200) {
       throw new Error(resp.data.message)
     }
 
+    const bucketsInOrg = resp.data.buckets.filter(b => b.orgID === org.id)
+
     const buckets = normalize<Bucket, BucketEntities, string[]>(
-      resp.data.buckets,
+      bucketsInOrg,
       arrayOfBuckets
     )
 

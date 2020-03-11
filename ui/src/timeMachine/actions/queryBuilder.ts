@@ -152,16 +152,18 @@ export const loadBuckets = () => async (
   dispatch(setBuilderBucketsStatus(RemoteDataState.Loading))
 
   try {
-    const resp = await api.getBuckets({query: {orgID}})
+    const resp = await api.getBuckets({query: {}})
 
     if (resp.status !== 200) {
       throw new Error(resp.data.message)
     }
 
-    const allBuckets = resp.data.buckets.map(b => b.name)
+    const allBucketsInOrg = resp.data.buckets
+      .filter(b => b.orgID === orgID)
+      .map(b => b.name)
 
-    const systemBuckets = allBuckets.filter(b => b.startsWith('_'))
-    const userBuckets = allBuckets.filter(b => !b.startsWith('_'))
+    const systemBuckets = allBucketsInOrg.filter(b => b.startsWith('_'))
+    const userBuckets = allBucketsInOrg.filter(b => !b.startsWith('_'))
     const buckets = [...userBuckets, ...systemBuckets]
 
     const selectedBucket = getActiveQuery(state).builderConfig.buckets[0]
