@@ -278,13 +278,15 @@ func (s *UserResourceMappingService) FindUserResourceMappings(ctx context.Contex
 		return nil, 0, err
 	}
 
-	urs := make([]*influxdb.UserResourceMapping, len(results.Users))
-	for k, item := range results.Users {
-		urs[k] = &influxdb.UserResourceMapping{
-			ResourceID:   f.ResourceID,
-			ResourceType: f.ResourceType,
-			UserID:       item.User.ID,
-			UserType:     item.Role,
+	urs := make([]*influxdb.UserResourceMapping, 0, len(results.Users))
+	for _, item := range results.Users {
+		if !f.UserID.Valid() || f.UserID != item.User.ID {
+			urs = append(urs, &influxdb.UserResourceMapping{
+				ResourceID:   f.ResourceID,
+				ResourceType: f.ResourceType,
+				UserID:       item.User.ID,
+				UserType:     item.Role,
+			})
 		}
 	}
 	return urs, len(urs), nil
